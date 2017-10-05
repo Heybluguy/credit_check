@@ -1,46 +1,66 @@
-#  moving left, double the value of every second digit
+class CreditCheck
+  attr_reader :card_number,
+              :valid
 
-# if total of t  his doubling operation is greater than 9 (e.g., 7 * 2 = 14), then sum the digits of the products (e.g., 10: 1 + 0 = 1, 14: 1 + 4 = 5).
-
-# take the sum of all the digits
-
-# if and only if the total modulo 10 is equal to 0 then the number is valid
-
-# card_number = "4929735477250543"
-#
-# valid = false
-
-require "pry"
- ccn = "4929735477250543"
-# card_array = []
-# card_array << card_number.to_s.split('')
-# print card_array
-
-def credit_card(ccn)
-count = 0
-answer = 0
-
-  ccn.split("").reverse.each do | digit |
-    if count.even?
-      answer += digit.to_i
-    elsif digit.to_i * 2 > 9
-      double = digit.to_i * 2
-      individual_num = double.to_s.split("")
-      individual_num.each do | num |
-      answer += num.to_i
-      end
-      answer
-    else
-      answer += digit.to_i * 2
-    end
-    count += 1
+  def initialize(card_number)
+    @card_number = card_number
+    @valid       = false
   end
 
-  if answer % 10 == 0
-    puts "The number is valid!"
-  else
-    puts "The number is invalid!"
+  def validate
+    formatted_card = separate_card_digits(@card_number)
+    summed_digits  = find_odd_digits(formatted_card)
+    outcome        = check(summed_digits)
+    result(outcome)
+  end
+
+  def separate_card_digits(card_number)
+    card_number.to_i.digits
+  end
+
+  def find_odd_digits(split_numbers)
+    split_numbers.map.with_index do |digit, index|
+      double_odd_digits(digit, index)
+    end.sum
+  end
+
+  def double_odd_digits(digit, index)
+    if index.odd?
+      double_the_numbers(digit)
+    else
+      digit
+    end
+  end
+
+  def double_the_numbers(num)
+    if (num * 2) > 9
+      (num * 2).digits.sum
+    else
+      num * 2
+    end
+  end
+
+  def check(num)
+    @valid = true if num % 10 == 0
+  end
+
+  def result(num)
+    puts @card_number
+    puts "The number is valid!" if valid == true
+    puts "The number is invalid!" if valid == false
   end
 end
 
-credit_card(ccn)
+valid_numbers   = ["5541808923795240", "4024007136512380", "6011797668867828"]
+invalid_numbers = ["5541801923795240", "4024007106512380", "6011797668868728"]
+
+puts "Valid numbers"
+valid_numbers.each  { |card_number| CreditCheck.new(card_number).validate }
+puts "Invalid numbers"
+invalid_numbers.each  { |card_number| CreditCheck.new(card_number).validate }
+
+puts "Valid AMEX"
+CreditCheck.new("342804633855673").validate
+
+puts "Invalid AMEX"
+CreditCheck.new("342801633855673").validate
